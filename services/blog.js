@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Blog = require("../db/blog");
+const { Blog } = require("../db/index");
 const verifyToken = require("../helpers/helpers");
 
 /**
@@ -205,9 +205,7 @@ const verifyToken = require("../helpers/helpers");
 
 router.get("/list", verifyToken, async (req, res) => {
   try {
-    let blogs = await Blog.find({
-      author: req.user.id,
-    }).populate("author");
+    let blogs = await Blog.findAll({ where: { author: req.user.id } });
     res.status(200).json({
       status: "success",
       code: 200,
@@ -215,6 +213,7 @@ router.get("/list", verifyToken, async (req, res) => {
       message: "Blog posts fetched successfully",
     });
   } catch (err) {
+    console.log(err);
     res.status(500).json({
       status: "error",
       code: 500,
@@ -227,7 +226,10 @@ router.get("/list", verifyToken, async (req, res) => {
 
 router.get("/view/:id", verifyToken, async (req, res) => {
   try {
-    let blog = await Blog.findById(req.params.id).populate("author");
+    let blog = await Blog.findOne({ where: { id: req.params.id } });
+    // .populate(
+    //   "author"
+    // );
     res.status(200).json({
       status: "success",
       code: 200,
@@ -251,6 +253,7 @@ router.post("/create", verifyToken, async (req, res) => {
       title: req.body.title,
       message: req.body.message,
       author: req.user.id,
+      author_name: req.user.name,
     });
     res.status(200).json({
       status: "success",
@@ -270,14 +273,15 @@ router.post("/create", verifyToken, async (req, res) => {
 
 router.put("/edit/:id", verifyToken, async (req, res) => {
   try {
-    let blog = await Blog.findByIdAndUpdate(
-      req.params.id,
+    let blog = await Blog.update(
       {
         title: req.body.title,
         message: req.body.message,
         author: req.user.id,
       },
-      { returnDocument: "after" }
+      {
+        where: { id: req.params.id },
+      }
     );
     res.status(200).json({
       status: "success",
@@ -298,7 +302,7 @@ router.put("/edit/:id", verifyToken, async (req, res) => {
 
 router.delete("/delete/:id", verifyToken, async (req, res) => {
   try {
-    let blog = await Blog.findByIdAndDelete(req.params.id);
+    let blog = await Blog.destroy({ where: { id: req.params.id } });
     res.status(200).json({
       status: "success",
       code: 200,

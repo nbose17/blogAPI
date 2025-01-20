@@ -10,22 +10,21 @@ const path = require("path");
 const app = express();
 const port = 3001;
 const { swaggerUi, swaggerSpec } = require("./swagger");
+const { sequelize } = require("./db/index"); // Import Sequelize and models
 
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 
-//Mongo DB Config
-mongoose
-  .connect(
-    `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.7tsliqt.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`
-  )
+// Sync models with the database
+sequelize
+  .sync({ force: true })
   .then(() => {
-    console.log("Database is connected!!");
+    console.log("Database synchronized successfully.");
   })
-  .catch(() => {
-    console.log("DB Connection Failed!!");
+  .catch((err) => {
+    console.error("Error synchronizing the database:", err);
   });
 
 // Serve Swagger UI
