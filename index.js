@@ -41,3 +41,5 @@ app.use("*", express.static(path.join(__dirname, "public")));
 app.listen(port, () => {
   console.log(`Blog API service listening on port ${port}`);
 });
+
+module.exports = app;

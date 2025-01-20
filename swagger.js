@@ -10,6 +10,7 @@ const options = {
       description: "API documentation for the Express.js application",
     },
     servers: [
+      { url: "https://blogforwelbex.netlify.app" },
       {
         url: "http://localhost:3001", // Replace with your server URL
       },
